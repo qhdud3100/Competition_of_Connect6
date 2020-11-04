@@ -1,4 +1,4 @@
-// AI에 대한 코드를 다루는 부분
+// AI의 동작에 대한 구체적인 코드를 다루는 부분
 
 package twoyoung.connect6.start;
 
@@ -69,75 +69,51 @@ public class AI {
 //	}
 	
 	// Class AI에 대한 constructor 정의
-	public AI(int [][] colorArray, int myColor, int enemyColor) {
+	public AI(int [][] colorArray, int myColor, int enemyColor)
+	{
 		this();
 		this.myColor=myColor;
 		this.enemyColor=enemyColor;
 		this.colorArray=colorArray;
-//		System.out.println(myColor);
-		
+		// 가중치 테이블들의 값을 하나씩 탐색
 		for(int y=0;y<19;y++) {
 			for(int x=0;x<19;x++) {
-
+				// 이미 돌이 착수되어 있는 공간인 경우
 				if(colorArray[x][y]!=0) {
-					weightTable[x][y]= -1; //뭐가 놓여있을때는 1 놓기
+					weightTable[x][y]= -1; // 착수된 돌이 있는 경우 -1로 값을 설정
 				}
 				else if(colorArray[x][y]==0) {//빈공간일때만 보내기
-
 					//당장 공격, 당장 수비
 					weightTable[x][y]=setWeight_1(x, y);
 					weightTable[x][y]=Math.max(setWeight_2(x,y), weightTable[x][y]);
 					weightTable[x][y]=Math.max(setWeight_3(x,y), weightTable[x][y]);
 					weightTable[x][y]=Math.max(setWeight_4(x,y), weightTable[x][y]); // 우선순위 중 가장 큰 값으로 갱신하기 위해 
-					
-					//길목이 많이 생기도록
-					weightTable[x][y]+=makeLoad(x,y, myColor); // 내 길목 만들기
+					// 길목과 관련된 가중치 선정
+					weightTable[x][y]+=makeLoad(x,y, myColor);    // 내 길목 만들기
 					weightTable[x][y]+=makeLoad(x,y, enemyColor); // 상대방 길목 차단시키기
 				}
-
 			}
 		}
-		
-		for(int y=9;y<13;y++) {//처음에 정 중앙에 놓기 위해, 적돌이 중앙에 놓아질 것을 대비해서 4개
+		//처음에 정 중앙에 놓기 위해, 적돌이 중앙에 놓아질 것을 대비해서 4개
+		for(int y=9;y<13;y++) {
 			if(weightTable[9][y]==0) {
 				weightTable[9][y]=2;
 			}
 		}
-
-
-		
 		// printWeight();
 		
 		int maxWeight = 0; // 가장 큰 가중치의 값을 저장함
 
 		int maxX=0;
 		int maxY=0;
-
 		
 		for(int i=0 ; i<19 ; i++) {
 			for(int j=0 ; j<19 ; j++) {
 				if(maxWeight < weightTable[i][j]&&colorArray[i][j]==0) {
-					
-
 					maxWeight = weightTable[i][j];
-
 					maxX = i;
-					maxY = j;
-					
+					maxY = j;	
 				}
-//				else if(maxWeight == weightTable[i][j]&&colorArray[i][j]==0) {
-//					Random random = new Random();
-//					if(random.nextBoolean()) {
-//						
-//						maxWeight = weightTable[i][j];
-//
-//						maxX = i;
-//						maxY = j;
-//						
-//					}
-//					
-//				}
-				
 			}
 		}
 		
@@ -146,7 +122,6 @@ public class AI {
 
 		weightTable[maxX][maxY] = -1; // 두번째 점의 착수를 위해 가중치가 가장 높은 점에 대한 정보를 초기화
 
-		
 		maxWeight = 0; // 가장 큰 가중치의 값을 저장함
 		for(int i=0 ; i<19 ; i++) {
 			for(int j=0 ; j<19 ; j++) {
@@ -155,17 +130,6 @@ public class AI {
 					maxX = i;
 					maxY = j;
 				}
-//				else if(maxWeight == weightTable[i][j]&&colorArray[i][j]==0) {
-//					Random random = new Random();
-//					if(random.nextBoolean()) {
-//						
-//						maxWeight = weightTable[i][j];
-//
-//						maxX = i;
-//						maxY = j;
-//						
-//					}
-//				}
 			}
 		}
 		
@@ -177,7 +141,7 @@ public class AI {
 	}
 	
 	
-	
+	// 가중치 테이블을 설정하는 method - 1
 	public int setWeight_1(int curX, int curY) { // x 축 검색 -> 6목 수비, 공격 찾기
 
 		int myCount=0; 
@@ -244,9 +208,6 @@ public class AI {
 				}catch(Exception e) { //예외가 발생하면 (육목 길이까지 있지 않으면) 
 					weight=weightA-1;
 				}
-				
-
-
 			}else if(set6.equals("022220")||set6.equals("022222")||set6.equals("222220")) { //양쪽 막아야되는 경우 : 돌 2개 필요
 				System.out.println("양 옆을 막아야하는 경우 " +curX+" , "+curY);
 				return weightC;
@@ -340,21 +301,18 @@ public class AI {
 		return weight;
 	}
 	
+	
+	// 가중치 테이블을 설정하는 method - 2
 	public int setWeight_2(int curX , int curY) { // y 축 검색 -> 6목 공격, 수비 잡기
-		
 		
 		int myCount=0; 
 		int enemyCount=0; 
 		int emptyCount=0; 
 		int redCount=0;
 		
-		
 		String set6 = ""; // 돌 6개씩 묶어 한 세트를 String 으로 표현한 것
 		int weight=0;
 		int length=0;
-		
-		
-		
 		
 		// x 축 판단
 		for(int y=curY-5;y<=curY;y++) { //6번 
@@ -381,13 +339,9 @@ public class AI {
 				
 			}
 			
-			
-			
 			/*
 			 * 위급한 상황
 			 */
-			
-			
 			if(set6.equals("011110")||set6.equals("011111")||set6.equals("111110")) { //공격도 붙어서 하는게 더 좋음
 				System.out.println("공격도 기존의 돌과 붙으면 붙을수록 좋음" +curX+" , "+curY);
 				return weightA;
@@ -510,21 +464,18 @@ public class AI {
 		return weight;
 	}
 	
+	// 가중치 테이블을 설정하는 method - 3
 	public int setWeight_3(int curX , int curY) { // 오른쪽 아래로 검색 -> 6목 공격, 수비 잡기
-		
 		
 		int myCount=0; 
 		int enemyCount=0; 
 		int emptyCount=0; 
 		int redCount=0;
 		
-		
 		String set6 = ""; // 돌 6개씩 묶어 한 세트를 String 으로 표현한 것
 		int weight=0;
 		int length=0;
 		
-		
-
 		// x 축 판단
 		for(int x=curX-5,y=curY-5;x<=curX&&y<=curY;x++,y++) { //6번 
 			for(int x1=x,y1=y;x1<=x+5&&y1<=y+5;x1++,y1++) { //6개씩
@@ -550,13 +501,9 @@ public class AI {
 				}
 			}
 			
-			
-			
 			/*
 			 * 위급한 상황
 			 */
-			
-			
 			if(set6.equals("011110")||set6.equals("011111")||set6.equals("111110")) { //공격도 붙어서 하는게 더 좋음
 				System.out.println("공격도 기존의 돌과 붙으면 붙을수록 좋음" +curX+" , "+curY);
 				return weightA;
@@ -681,21 +628,18 @@ public class AI {
 		return weight;
 	}
 	
+	// 가중치 테이블을 설정하는 method - 4
 	public int setWeight_4(int curX , int curY) { // 오른쪽 위로 검색 -> 6목 공격, 수비 잡기
-		
 		
 		int myCount=0; 
 		int enemyCount=0; 
 		int emptyCount=0; 
 		int redCount=0;
 		
-		
 		String set6 = ""; // 돌 6개씩 묶어 한 세트를 String 으로 표현한 것
 		int weight=0;
 		int length=0;
 		
-		
-
 		// x 축 판단
 		for(int x=curX-5,y=curY+5;x<=curX&&y>=curY;x++,y--) { //6번 
 			for(int x1=x,y1=y;x1<=x+5&&y1>=y-5;x1++,y1--) { //6개씩
@@ -720,13 +664,9 @@ public class AI {
 				}
 			}
 			
-			
-			
 			/*
 			 * 위급한 상황
 			 */
-			
-			
 			if(set6.equals("011110")||set6.equals("011111")||set6.equals("111110")) { //공격도 붙어서 하는게 더 좋음
 				System.out.println("공격도 기존의 돌과 붙으면 붙을수록 좋음" +curX+" , "+curY);
 				return weightA;
@@ -850,15 +790,12 @@ public class AI {
 		return weight;
 	}
 	
-	
-	
+	// 공격을 전개할 수 있도록 길목을 만듦
 	public int makeLoad(int curX, int curY, int findColor){ 
 		
 		int findCount=0;
 		int sum=0;
 		int scope=3;
-		
-		
 		
 		//아래쪽 판단
 		for(int y=curY+1;y<=curY+scope;y++) {
@@ -870,7 +807,6 @@ public class AI {
 
 			}
 		}
-		
 		
 		//윗쪽 판단 
 		for(int y=curY-1;curY-scope<=y;y--) {
@@ -884,8 +820,6 @@ public class AI {
 		}
 		sum+=findCount;
 		findCount=0;
-		
-		
 		
 		//오른쪽 판단
 		for(int x=curX+1;x<=curX+scope;x++) {
@@ -910,8 +844,6 @@ public class AI {
 
 		sum+=findCount;
 		findCount=0;
-		
-		
 		
 		// 오른쪽 아래 대각선
 		for(int x=curX+1, y=curY+1 ;x<=curX+scope && y<=curY+scope ;x++, y++) {
@@ -961,8 +893,6 @@ public class AI {
 		
 		return sum;
 	}
-	
-	
 	
 	public AI(){
 		

@@ -34,7 +34,6 @@ public class Start extends JFrame implements ActionListener
 				try {
 					Start frame = new Start(); // 생성자를 실행하기 위한 부분
 					frame.startGame();
-					System.out.println("Program Start"); // 프로그램의 시작을 알리는 메시지 출력
 				} catch (Exception e) {
 					e.printStackTrace(); // 정상적으로 프로그램이 실행되지 않은 경우에 대한 예외처리
 				}
@@ -90,7 +89,8 @@ public class Start extends JFrame implements ActionListener
 	
 	// 액션 리스너
 	@Override
-	public void actionPerformed(ActionEvent e) {
+	public void actionPerformed(ActionEvent e)
+	{
 		String button = e.getActionCommand(); // 컴포넌트의 텍스트값을 가져옴
 		
 		if(button.equals("흑 시작하기")) {

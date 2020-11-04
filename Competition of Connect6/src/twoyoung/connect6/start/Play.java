@@ -53,7 +53,7 @@ public class Play extends JPanel implements ActionListener, MouseListener{
 	public int myColor;    // 내가 플레이하는 돌의 색상
 	public int enemyColor; // 상대편 돌의 색상
 	
-	private int clickOption;
+	private int clickOption; // 클릭한 대상에 대한 옵션값을 저장하는 정수형 변수
 	private int colorOption=RED; // 현재 순서에 해당하는 돌의 색상
 	private boolean count=false; // 2개의 돌이 착수되었는 지에 대한 참, 거짓을 나타냄
 	
@@ -172,12 +172,13 @@ public class Play extends JPanel implements ActionListener, MouseListener{
 				setBackground(Color.PINK); // 사용할 배경색상을 설정
 				// 남은 제한시간을 레이블에 출력
 				if(colorOption==BLACK)
-					timerLabel.setText("흑돌 남은 시간: " + time_limit + " 초");
+					timerLabel.setText("(흑돌)남은 시간: " + time_limit + " 초");
 				else if(colorOption==WHITE)
-					timerLabel.setText("백돌 남은 시간: " + time_limit + " 초");
+					timerLabel.setText("(백돌)남은 시간: " + time_limit + " 초");
 				time_limit--; // 시간값을 1차감
 
 				// 타이머 초기화 - 정해진 착수 제한시간이 모두 소진된 경우
+				// 2개의 돌을 모두 놓지 않았더라도 순서를 전환함
 				if(time_limit==0) {
 					JOptionPane.showMessageDialog(mainFrame, "시간초과, 순서가 전환됩니다.");
 					time_limit=TIME_LIMIT; // 제한시간을 60초로 설정
@@ -186,7 +187,7 @@ public class Play extends JPanel implements ActionListener, MouseListener{
 						colorOption=WHITE;
 					else if(colorOption==WHITE)
 						colorOption=BLACK;
-					count=false;
+					count=false; // count값을 초기화
 					repaint(); // 프레임을 업데이트
 				}
 			}
@@ -252,7 +253,7 @@ public class Play extends JPanel implements ActionListener, MouseListener{
 				break;
 			}
 		}
-		// 범위 안에 있어야되고 이미 놓인 돌이 없어야함. 
+		// 범위 안에 있어야되고 이미 놓인 돌이 없어야함.
 		if((startX<=pointX) && (pointX<=endX) && (startY<=pointY) && (pointY<=endY)
 				&& (colorArray[arrayX][arrayY]==0)) {
 			// 적돌
@@ -264,10 +265,12 @@ public class Play extends JPanel implements ActionListener, MouseListener{
 				colorArray[arrayX][arrayY]=colorOption; // 적돌을 착수한 정보를 2차원 배열에 저장
 			}
 			// 흑돌, 백돌
-			else { 
-				switch(clickOption) {
+			else {
 				// 미리두기(네모 틀) - 착수를 확정짓기 전에 바둑판에 표시하는 사각형
-				case PREV:
+				// System.out.println(clickOption);
+				System.out.println("clickOption(paint) : " + clickOption);
+				if(clickOption == PREV) {
+					System.out.println("PREV쪽으로 흐름의 분기 넘어감");
 					if(colorOption==BLACK) {
 						g.setColor(Color.black); // 사각형의 색상을 검은색으로
 						g.setStroke(new BasicStroke(4));
@@ -278,12 +281,11 @@ public class Play extends JPanel implements ActionListener, MouseListener{
 						g.setStroke(new BasicStroke(4));
 						g.drawRect(pointX-14, pointY-14, 28, 28); // 사각형을 그림
 					}
-					break;
-					
+				}
 				// 착수지점 확정 및 돌을 착수하는 부분
 				// 매번 착수가 이루어질 때마다 승부를 결정지을 조건을 충족하였는 지 확인
-				case SET:
-					System.out.println("SET쪽으로 프로그램 흐름의 분기가 넘어갔습니다.");
+				else if(clickOption == SET) {
+					System.out.println("SET쪽으로 흐름의 분기 넘어감");
 					// 흑돌
 					if(colorOption==BLACK) {
 						g.setColor(Color.black);
@@ -318,11 +320,10 @@ public class Play extends JPanel implements ActionListener, MouseListener{
 						timer.stop(); // 타이머를 정지시킴
 						new Finish(WHITE); // 백돌승리 페이지를 출력
 					}
-					break;
-				
+				}
 				// AI에 대한 부분
-				// 지금 이쪽으로 흐름의 분기가 넘어가지 않는 상황 
-				case AI:
+				else if(clickOption == AI) {
+					System.out.println("AI파트, 프로그램흐름의 분기 넘어감");
 					colorChange(); // 착수정보를 변경
 					int winner1=finishCheck(); // 승부가 났는 지를 확인하는 부분
 					// 흑돌이 승리한 경우
@@ -335,7 +336,6 @@ public class Play extends JPanel implements ActionListener, MouseListener{
 						timer.stop(); // 타이머 종료
 						new Finish(WHITE); // 백돌승리 페이지 출력
 					}
-					break;
 				}
 			}
 		}
@@ -364,12 +364,10 @@ public class Play extends JPanel implements ActionListener, MouseListener{
 				// 현재 순서가 백돌 -> 흑돌로
 				if(colorOption==WHITE) {
 					colorOption=BLACK;
-					System.out.println("순서전환 : 백돌 -> 흑돌");
 				}
 				// 현재 순서가 흑돌 -> 백돌로
 				else if(colorOption==BLACK) {
 					colorOption=WHITE;
-					System.out.println("순서전환 : 흑돌 -> 백돌");
 				}
 				count=false; // 착수한 돌의 수에 대한 정보값을 초기화
 				time_limit = TIME_LIMIT; // 타이머 초기화
@@ -382,9 +380,12 @@ public class Play extends JPanel implements ActionListener, MouseListener{
 	}
 	
 	// AI의 동작을 제어하는 부분
+	// -> AI가 한번씩 착수할 때마다 호출되는 method
 	public void aiPlay() {
+		System.out.println("AI 실행");
+		clickOption=AI; // clickOption을 AI로 변경
+		System.out.println("clickOption(aiPlay) : " + clickOption);
 		// 현재 AI 자신의 순서이며, 2개의 돌을 모두 놓지 않은 상황인 경우
-		System.out.println("AI method로 분기가 넘어 옵니다.");
 		if((colorOption==myColor) && (count==false)) {
 			// 주어진 대국정보를 주입한 AI생성
 			AI ai = new AI(colorArray, myColor, enemyColor);
@@ -393,6 +394,10 @@ public class Play extends JPanel implements ActionListener, MouseListener{
 			colorArray[ai.x1][ai.y1]=myColor;
 			Point tmp = new Point(ai.x1*30+startX,ai.y1*30+startY,myColor);
 			pointStack.add(tmp); // AI에 의해서 착수된 정보를 stack에 저장
+			// 대국을 시작하는 첫번째 수인 경우
+			// -> 하나의 돌만 착수하도록 유도함
+			if(first == true)
+				count = true;
 			
 			// AI의 돌이 백돌이거나
 			// 흑돌이지만 맨 처음에 두는 수가 아닌 경우
@@ -402,12 +407,13 @@ public class Play extends JPanel implements ActionListener, MouseListener{
 				tmp = new Point(ai.x2*30+startX,ai.y2*30+startY,myColor);
 				pointStack.add(tmp); // AI에 의해서 착수된 정보를 stack에 저장
 			}
-			clickOption=AI;
+			time_limit=TIME_LIMIT;
 			repaint();
 		}
 		// AI의 순서가 아닌 경우에 AI착수 버튼을 클릭한 경우
 		else {
-			System.out.println("AI 차례가 아닙니다 ! ");
+			// 팝업창을 통해서 현재 AI의 순서가 아님을 알림
+			JOptionPane.showMessageDialog(mainFrame, "현재 AI의 순서가 아닙니다.");
 		}
 	}
 
@@ -416,12 +422,11 @@ public class Play extends JPanel implements ActionListener, MouseListener{
 	// -> AI에 의한 착수가 이뤄지는 경우 정상적인 탐색이 이뤄지지 않음 -> 디버깅 해야함
 	public int finishCheck()
 	{
-		
 		int findCount; // 연속으로 배열되는 돌의 갯수
 		int findColor = 0; // 돌의 색상값을 상수로 표현한 것
 		
+		// 가장 최근에 착수한 지점에 대한 색상정보값을 가져옴
 		findColor = colorArray[arrayX][arrayY];
-		System.out.println("탐색대상인 색상 : " + findColor);
 		
 		// 탐색지점으로부터 위쪽 방향으로 연속되는 동일한 색의 돌수를 카운트
 		findCount=1;
@@ -433,13 +438,7 @@ public class Play extends JPanel implements ActionListener, MouseListener{
 			// 서로 색상이 다르거나 빈공간을 만난 경우
 			else break;
 		}
-		// 6개 이상의 돌이 위쪽방향으로 연속되는 경우
-		System.out.println("위쪽 방향 : " + findCount);
-		if(findCount>=6) return findColor; // 해당돌의 색상값을 반환
-		
-		
 		// 아랫쪽 판단
-		findCount = 1;
 		for(int y=arrayY-1;arrayY-5<=y;y--) {
 			// 주어진 탐색범위를 넘어선 경우
 			if(y<0) break;
@@ -448,9 +447,11 @@ public class Play extends JPanel implements ActionListener, MouseListener{
 			// 서로 색상이 다르거나 빈공간을 만난 경우
 			else break;
 		}
-		// 6개 이상의 돌이 아래쪽방향으로 연속되는 경우
-		System.out.println("아래쪽 방향 : " + findCount);
-		if(findCount>=6) return findColor; // 해당 돌의 색상값을 반환
+		// 6개 이상의 돌이 왼쪽 아래 대각선 방향으로 연속되는 경우
+		if(findCount>=6) {
+			System.out.println("findCount : " + findCount);
+			return findColor;
+		}
 		
 		
 		// 오른쪽 판단
@@ -464,11 +465,7 @@ public class Play extends JPanel implements ActionListener, MouseListener{
 			else break;
 		}
 		// 6개 이상의 돌이 오른쪽 방향으로 연속되는 경우
-		System.out.println("오른쪽 방향 : " + findCount);
-		if(findCount>=6) return findColor; // 해당 돌의 색상값을 반환
-		
-		
-		//왼쪽 판단 
+		// 왼쪽 판단 
 		findCount=1;
 		for(int x=arrayX-1;arrayX-5<=x;x--) {
 			// 주어진 탐색의 범위를 넘어서는 경우
@@ -478,10 +475,11 @@ public class Play extends JPanel implements ActionListener, MouseListener{
 			// 서로 색상이 다르거나 빈공간을 만난 경우
 			else break;
 		}
-		// 6개 이상의 돌이 왼쪽 방향으로 연속되는 경우
-		System.out.println("왼쪽 방향 : " + findCount);
-		if(findCount>=6) return findColor;
-		
+		// 6개 이상의 돌이 왼쪽 아래 대각선 방향으로 연속되는 경우
+		if(findCount>=6) {
+			System.out.println("findCount : " + findCount);
+			return findColor;
+		}
 		
 		// 오른쪽 아래 대각선
 		findCount=1;
@@ -492,12 +490,7 @@ public class Play extends JPanel implements ActionListener, MouseListener{
 			else if(colorArray[x][y]==findColor) findCount++;
 			// 서로 색상이 다르거나 빈공간을 만난 경우 
 			else break;
-		}
-		// 6개 이상의 돌이 오른쪽 아래 대각선 방향으로 연속되는 경우
-		System.out.println("오른쪽 아래 대각선 : " + findCount);
-		if(findCount>=6) return findColor;
-		
-		
+		}		
 		//왼쪽 위 대각선
 		for(int x=arrayX-1, y=arrayY-1 ; arrayX-5<=x && arrayY-5<=y ;x--, y--) {
 			// 주어진 탐색의 범위를 넘어서는 경우
@@ -507,9 +500,11 @@ public class Play extends JPanel implements ActionListener, MouseListener{
 			// 서로 색상이 다르거나 빈공간을 만난 경우
 			else break;
 		}
-		// 6개 이상의 돌이 왼쪽 위 대각선 방향으로 연속되는 경우
-		System.out.println("왼쪽 위 대각선 : " + findCount);
-		if(findCount>=6) return findColor;
+		// 6개 이상의 돌이 왼쪽 아래 대각선 방향으로 연속되는 경우
+		if(findCount>=6) {
+			System.out.println("findCount : " + findCount);
+			return findColor;
+		}
 		
 		
 		// 오른쪽 위 대각선
@@ -522,11 +517,6 @@ public class Play extends JPanel implements ActionListener, MouseListener{
 			// 서로 색상이 다르거나 빈공간을 만난 경우
 			else break;
 		}
-		// 6개 이상의 돌이 오른쪽 위 대각선 방향으로 연속되는 경우
-		System.out.println("오른쪽 위 대각선 : " + findCount);
-		if(findCount>=6) return findColor;
-		
-		
 		//왼쪽 아래 대각선
 		for(int x=arrayX-1, y=arrayY+1 ; arrayX-5<=x && arrayY+5>=y ;x--, y++) {
 			// 주어진 탐색의 범위를 넘어서는 경우
@@ -537,9 +527,10 @@ public class Play extends JPanel implements ActionListener, MouseListener{
 			else break;
 		}
 		// 6개 이상의 돌이 왼쪽 아래 대각선 방향으로 연속되는 경우
-		System.out.println("왼쪽 아래 대각선 : " + findCount);
-		if(findCount>=6) return findColor;
-		
+		if(findCount>=6) {
+			System.out.println("findCount : " + findCount);
+			return findColor;
+		}
 		return 0;
 	}
 
@@ -574,7 +565,6 @@ public class Play extends JPanel implements ActionListener, MouseListener{
 		// "AI 착수" 버튼을 클릭한 경우
 		else if(button.equals("AI 착수")) {
 			this.aiPlay(); // AI를 동작시키는 method 실행
-			// finishCheck(); // 경기종료조건을 만족하였는 지 확인
 			colorOption=enemyColor; // 상대편에서 순서를 넘겨줌
 		}
 		// "시작하기" 버튼을 클릭한 경우
@@ -582,17 +572,17 @@ public class Play extends JPanel implements ActionListener, MouseListener{
 			int result = JOptionPane.showConfirmDialog(null, "대국을 시작합니다.", "대국시작", JOptionPane.YES_NO_OPTION);
 			// 사용자가 예, 아니오의 선택없이 팝업창을 닫은 경우
 			if(result == JOptionPane.CLOSED_OPTION) {
-				System.out.println("대국 시작 취소");
+				System.out.println("대국취소");
 			}
 			// 사용자가 "예"를 선택한 경우
-			else if(result == JOptionPane.YES_OPTION) {
+			if(result == JOptionPane.YES_OPTION) {
 				timer.start();
 				colorOption=BLACK; // 초기 돌의 색상값을 흑돌로 설정
-				System.out.println("시작하기");
+				System.out.println("대국시작");
 			}
 			// 사용자가 "아니오"를 선택한 경우
 			else {
-				System.out.println("대국 시작 취소");
+				System.out.println("대국취소");
 			}
 		}
 		// "버리기" 버튼을 클릭한 경우
@@ -611,14 +601,14 @@ public class Play extends JPanel implements ActionListener, MouseListener{
 	@Override
 	public void mousePressed(MouseEvent e) {
 		if(startX<=e.getX() && e.getX()<=endX && startY<=e.getY() && e.getY()<=endY) {
-			arrayX=(e.getX()-startX+15)/30;
-			arrayY=(e.getY()-startY+15)/30;
+			arrayX=(e.getX()-startX+15)/30; // arrayX에 대한 값을 얻음
+			arrayY=(e.getY()-startY+15)/30; // arrayY에 대한 값을 얻음
 			pointX= arrayX*30+startX;
 			pointY= arrayY*30+startY;
 			
 			// 사용자 입력이 더블클릭인 경우
 			// -> 돌을 착수함
-			if(clickOption==PREV&& Math.abs(e.getX()-prepointX)<15 && Math.abs(e.getY()-prepointY)<15) {	
+			if((clickOption==PREV) && (Math.abs(e.getX()-prepointX)<15) && (Math.abs(e.getY()-prepointY)<15)) {	
 				set();
 			}
 			// 사용자 입력이 일반클릭인 경우
@@ -629,6 +619,7 @@ public class Play extends JPanel implements ActionListener, MouseListener{
 				clickOption=PREV; 
 				repaint();
 			}
+			System.out.println("마우스 클릭 감지");
 		}
 	}
 	
