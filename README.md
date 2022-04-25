@@ -1,2 +1,1 @@
-# Competition_of_Connect6
-
+# Competition_of_Connect6.
