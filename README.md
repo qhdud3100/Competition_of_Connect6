@@ -5,7 +5,7 @@ clone code and run Start.java
 </br></br>
 
 ## Start
-- You can choose option 
+You can choose option 
 1. Play black
 2. Play white
 3. Rank
