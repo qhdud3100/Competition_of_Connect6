@@ -4,7 +4,7 @@
 clone code and run Start.java
 <\br>
 
-### Start
+## Start
 You can choose option 
 1. Play black
 2. Play white
@@ -12,24 +12,24 @@ You can choose option
 4. Exit
 <\br>
 
-### play 
+## play 
 Draws the stone if player click and decide to put. 
 Determines whether the game is over and informs you.
 <\br>
 
-### finish
+## finish
 Shown up when the competition is completed. 
 It record winner's information and save as file.
 <\br>
 
-### Rank
+## Rank
 It show rank based on winning rate.
 <\br>
 
-### AI Player
+## AI Player
 Not real AI but just simple brute force algorithm. 
 It can do offence/defence depending on priority weight.
 <\br>
 
-### Network 
+## Network 
 You can play with other player using socket call. 
