@@ -10,7 +10,7 @@ You can choose option
 2. Play white
 3. Rank
 4. Exit
-<\br>
+</br>
 
 ## play 
 Draws the stone if player click and decide to put. 
