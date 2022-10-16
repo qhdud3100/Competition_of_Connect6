@@ -5,7 +5,7 @@ clone code and run Start.java
 </br></br>
 
 ## Start
-You can choose option 
+- You can choose option 
 1. Play black
 2. Play white
 3. Rank
@@ -23,7 +23,7 @@ You can choose option
 </br></br>
 
 ## Rank
-It show rank based on winning rate.
+- It show rank based on winning rate.
 </br></br>
 
 ## AI Player
@@ -32,4 +32,4 @@ It show rank based on winning rate.
 </br></br>
 
 ## Network 
-You can play with other player using socket call. 
+- You can play with other player using socket call. 
