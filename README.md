@@ -14,7 +14,7 @@ You can choose option
 
 ## play 
 - Draws the stone if player click and decide to put. 
-- Determines whether the game is over and informs you.
+- Determines whether the game is over.
 </br></br>
 
 ## finish
