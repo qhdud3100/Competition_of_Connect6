@@ -13,7 +13,7 @@ You can choose option
 </br>
 
 ## play 
-- Draws the stone if player click and decide to put. 
+- Marks the spot when a Go stone is placed.
 - Determines whether the game is over.
 </br></br>
 
