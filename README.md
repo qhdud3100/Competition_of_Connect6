@@ -27,7 +27,7 @@ You can choose option
 </br></br>
 
 ## AI Player
-- Not real AI but just simple brute force algorithm. 
+- Not real AI but just simple brute force algorithm and pattern maching.
 - It can do offence/defence depending on priority weight.
 </br></br>
 
